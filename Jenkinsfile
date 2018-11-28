@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    parameters {
+        string(
+                name: 'gradleTask',
+                defaultValue: 'runFrontendTests',
+                description: 'Gradle task name to run. runFrontendTests by default')
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -22,7 +28,7 @@ pipeline {
                 slackSend(color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}] ${STAGE_NAME}' (${env.BUILD_URL})")
                 script {
                     try {
-                        sh 'bash ./gradlew -i --continue runFrontendTests -DremoteDriverName=internetexplorer -DhubURL=http://ecsa004006a4.epam.com:4444/wd/hub'
+                        sh 'bash ./gradlew -i --continue ' + ${params.gradleTask} + ' -DremoteDriverName=internetexplorer -DhubURL=http://ecsa004006a4.epam.com:4444/wd/hub'
                     } finally {
                         allure([includeProperties: false, jdk: '', results: [[path: 'build/allure-results']]])
                     }
